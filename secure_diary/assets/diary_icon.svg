@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <defs>
+    <linearGradient id="coverGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#243358"/>
+      <stop offset="100%" stop-color="#141c30"/>
+    </linearGradient>
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffdf58"/>
+      <stop offset="100%" stop-color="#c99718"/>
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="8" stdDeviation="10" flood-opacity="0.35"/>
+    </filter>
+  </defs>
+
+  <!-- Diary Book Cover with Shadow -->
+  <rect x="36" y="24" width="184" height="208" rx="20" fill="url(#coverGrad)" stroke="#3b528a" stroke-width="4" filter="url(#shadow)"/>
+
+  <!-- Book Spine Stitch Ribbon -->
+  <rect x="52" y="24" width="12" height="208" fill="#1b253d" opacity="0.8"/>
+
+  <!-- Page Edge -->
+  <rect x="214" y="36" width="6" height="184" rx="2" fill="#f5f0e6"/>
+
+  <!-- Golden Bookmark Ribbon -->
+  <polygon points="156,24 180,24 180,96 168,84 156,96" fill="#f39c12"/>
+
+  <!-- Golden Lock Shackle -->
+  <path d="M 106,134 L 106,116 A 22,22 0 0,1 150,116 L 150,134" fill="none" stroke="url(#goldGrad)" stroke-width="8" stroke-linecap="round"/>
+
+  <!-- Golden Lock Body -->
+  <rect x="98" y="132" width="60" height="52" rx="10" fill="url(#goldGrad)" stroke="#fae17d" stroke-width="2" filter="url(#shadow)"/>
+
+  <!-- Lock Keyhole -->
+  <circle cx="128" cy="153" r="5" fill="#141c30"/>
+  <polygon points="125,155 131,155 130,169 126,169" fill="#141c30"/>
+</svg>

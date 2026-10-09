@@ -1,0 +1,23 @@
+# Python cache & artifacts
+__pycache__/
+*.pyc
+*.pyo
+build/
+dist/
+*.spec
+
+# Local diary databases & logs
+*.db
+*.db-journal
+*.log
+diary_vault/
+*.diaryvault
+
+# Sandbox stock downloader files
+Oct-8-2026_*
+*.csv
+download_stock_prices.py
+stock_analysis.py
+stock_downloader_gui*
+stock-downloader.desktop
+test_version4.py

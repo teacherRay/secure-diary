@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Secure Daily Diary
+Comment=Password protected, AES-256 encrypted local daily journal
+Exec=python3 "/home/ray/Code/Gemini Sandbox/secure_diary.py"
+Icon=/home/ray/Code/Gemini Sandbox/secure_diary/assets/diary_icon.png
+Categories=Office;Utility;Personal;
+Terminal=false
+StartupNotify=true
