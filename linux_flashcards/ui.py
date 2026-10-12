@@ -1,5 +1,6 @@
 """
 Rich Terminal User Interface components and layout renderers for Linux Flashcards.
+Optimized for both Light and Dark terminal color schemes.
 """
 
 from __future__ import annotations
@@ -10,9 +11,8 @@ from typing import Any, Dict, List, Optional
 from rich.align import Align
 from rich.box import DOUBLE, HEAVY, ROUNDED, SIMPLE
 from rich.columns import Columns
-from rich.console import Console
+from rich.console import Console, Group
 from rich.panel import Panel
-from rich.progress_bar import ProgressBar
 from rich.rule import Rule
 from rich.syntax import Syntax
 from rich.table import Table
@@ -30,7 +30,7 @@ def print_banner(streak: int = 1) -> None:
     """Display an eye-catching header banner."""
     header_text = Text()
     header_text.append("🐧 LINUX TERMINAL COMMAND FLASHCARDS\n", style="bold cyan")
-    header_text.append("Master the Command Line • Spaced Repetition • Interactive Challenges\n", style="italic bright_black")
+    header_text.append("Master the Command Line • Spaced Repetition • Interactive Challenges\n", style="italic dim")
     header_text.append(f"🔥 Daily Streak: {streak} day{'s' if streak != 1 else ''}", style="bold yellow")
 
     panel = Panel(
@@ -65,7 +65,7 @@ def render_card_front(card: Dict[str, Any], card_index: int, total_cards: int, m
     bm_str = "⭐ Bookmarked" if is_bookmarked else "☆ Unmarked"
 
     header_bar = (
-        f"[bold bright_white]Card {card_index + 1}/{total_cards}[/bold bright_white]  │  "
+        f"[bold]Card {card_index + 1}/{total_cards}[/bold]  │  "
         f"[magenta]{card['category']}[/magenta]  │  "
         f"[{box_color}]{box_name}[/{box_color}]  │  "
         f"[dim]{card['difficulty']}[/dim]  │  "
@@ -79,18 +79,18 @@ def render_card_front(card: Dict[str, Any], card_index: int, total_cards: int, m
         content.append("TASK / SCENARIO:\n", style="bold underline cyan")
         challenge_scenario = card.get("challenge", {}).get("scenario")
         if challenge_scenario:
-            content.append(f"{challenge_scenario}\n\n", style="bold white")
+            content.append(f"👉  {challenge_scenario}\n\n", style="bold")
         else:
-            content.append(f"{card['summary']}\n\n", style="bold white")
+            content.append(f"👉  {card['summary']}\n\n", style="bold")
         content.append("Question: ", style="bold green")
         content.append("Which Linux terminal command and flags would you use?\n", style="italic")
     else:  # command_first
         content.append("COMMAND:\n", style="bold underline cyan")
-        content.append(f"  $ {card['name']}\n\n", style="bold green font_size_large")
+        content.append(f"  $ {card['name']}\n\n", style="bold green")
         content.append("Question: ", style="bold green")
         content.append(f"What does this command do, what is its syntax, and what are its key flags?\n", style="italic")
 
-    footer_text = "\n[bold yellow]Controls:[/] [Enter/Space] Flip card  │  [h] Peek Hint  │  [b] Bookmark  │  [q] Exit deck"
+    footer_text = r"[bold yellow]Controls:[/] \[Enter/Space] Flip card  │  \[h] Peek Hint  │  \[b] Bookmark  │  \[q] Exit deck"
 
     return Panel(
         content,
@@ -110,23 +110,19 @@ def render_card_back(card: Dict[str, Any], card_index: int, total_cards: int) ->
 
     header_bar = (
         f"[bold green]✓ REVEALED[/bold green]  │  "
-        f"[bold bright_white]Card {card_index + 1}/{total_cards}[/bold bright_white]  │  "
+        f"[bold]Card {card_index + 1}/{total_cards}[/bold]  │  "
         f"[magenta]{card['category']}[/magenta]  │  "
         f"[dim]{card['difficulty']}[/dim]"
     )
 
-    elements: List[Any] = []
-
     # Command Header & Syntax
     cmd_title = Text()
     cmd_title.append(f"$ {card['name']}", style="bold bright_green")
-    cmd_title.append(f"  —  {card['summary']}", style="italic white")
-    elements.append(cmd_title)
-    elements.append(Text(f"\nSyntax:  {card['syntax']}", style="bold yellow"))
-    elements.append(Text(f"Details: {card['description']}\n", style="bright_white"))
+    cmd_title.append(f"  —  {card['summary']}", style="italic")
 
     # Common Flags Table
     flags = card.get("flags", {})
+    table = None
     if flags:
         table = Table(
             title="Key Flags & Options",
@@ -137,24 +133,26 @@ def render_card_back(card: Dict[str, Any], card_index: int, total_cards: int) ->
             expand=True,
         )
         table.add_column("Flag / Option", style="bold yellow", width=18)
-        table.add_column("Function", style="white")
+        table.add_column("Function", style="")
 
         for flag_name, flag_desc in flags.items():
             table.add_row(flag_name, flag_desc)
-        elements.append(table)
 
-    # Real-world Examples Table
+    # Real-world Examples
     examples = card.get("examples", [])
+    example_texts = []
     if examples:
-        elements.append(Text("\nPractical Examples:", style="bold cyan"))
         for eg in examples:
-            eg_text = Text()
-            eg_text.append(f"  $ {eg['cmd']}", style="bold green")
-            eg_text.append(f"  →  {eg['desc']}", style="italic bright_black")
-            elements.append(eg_text)
+            example_texts.append(
+                Text.assemble(
+                    (f"  $ {eg['cmd']}", "bold green"),
+                    (f"  →  {eg['desc']}\n", "italic dim"),
+                )
+            )
 
     # Pro-tip / Mnemonic
     hint = card.get("hint")
+    hint_panel = None
     if hint:
         hint_panel = Panel(
             Text(f"💡 Pro-Tip / Mnemonic: {hint}", style="italic bright_yellow"),
@@ -162,11 +160,10 @@ def render_card_back(card: Dict[str, Any], card_index: int, total_cards: int) ->
             border_style="yellow",
             padding=(0, 1),
         )
-        elements.append(Text("\n"))
-        elements.append(hint_panel)
 
     # User Notes
     user_notes = progress.get("notes")
+    notes_panel = None
     if user_notes:
         notes_panel = Panel(
             Text(f"📝 Your Personal Note: {user_notes}", style="cyan"),
@@ -174,38 +171,26 @@ def render_card_back(card: Dict[str, Any], card_index: int, total_cards: int) ->
             border_style="cyan",
             padding=(0, 1),
         )
-        elements.append(notes_panel)
 
     # Spaced Repetition Grading Controls
     rating_controls = (
-        "\n[bold bright_white]Rate your recall (Spaced Repetition):[/bold bright_white]\n"
-        "  [bold red][1] Again[/bold red] (Reset to Box 1)    "
-        "  [bold yellow][2] Hard[/bold yellow] (Keep Box)    "
-        "  [bold green][3] Good[/bold green] (+1 Box)    "
-        "  [bold cyan][4] Easy[/bold cyan] (+2 Boxes)\n"
-        "  [dim][b] Bookmark  │  [n] Add note  │  [q] Back to menu[/dim]"
+        "\n[bold]Rate your recall (Spaced Repetition):[/bold]\n"
+        "  [bold red]\\[1] Again[/bold red] (Reset to Box 1)    "
+        "  [bold yellow]\\[2] Hard[/bold yellow] (Keep Box)    "
+        "  [bold green]\\[3] Good[/bold green] (+1 Box)    "
+        "  [bold cyan]\\[4] Easy[/bold cyan] (+2 Boxes)\n"
+        "  [dim]\\[b] Bookmark  │  \\[n] Add note  │  \\[q] Back to menu[/dim]"
     )
-
-    combined_text = Text()
-    for el in elements:
-        if isinstance(el, Text):
-            combined_text.append_text(el)
-            combined_text.append("\n")
-
-    # In case there's a table, render via a group layout or return composite
-    from rich.console import Group
 
     group_renderable = Group(
         cmd_title,
-        Text(f"Syntax:  {card['syntax']}", style="bold yellow"),
-        Text(f"{card['description']}\n", style="white"),
-        *( [table] if flags else [] ),
+        Text(f"\nSyntax:  {card['syntax']}", style="bold yellow"),
+        Text(f"Details: {card['description']}\n", style=""),
+        *( [table] if table else [] ),
         Text("\nPractical Examples:", style="bold cyan") if examples else Text(""),
-        *(
-            [Text.assemble((f"  $ {eg['cmd']}", "bold green"), (f"  →  {eg['desc']}\n", "italic bright_black")) for eg in examples]
-        ),
-        *( [hint_panel] if hint else [] ),
-        *( [notes_panel] if user_notes else [] ),
+        *example_texts,
+        *( [hint_panel] if hint_panel else [] ),
+        *( [notes_panel] if notes_panel else [] ),
         Text.from_markup(rating_controls),
     )
 
@@ -226,7 +211,7 @@ def render_quiz_question_panel(
 ) -> Panel:
     """Render multiple-choice quiz question."""
     title_bar = (
-        f"[bold bright_white]Question {q_index + 1}/{total_q}[/bold bright_white]  │  "
+        f"[bold]Question {q_index + 1}/{total_q}[/bold]  │  "
         f"[magenta]{q['category']}[/magenta]  │  "
         f"[bold green]Score: {score}/{q_index}[/bold green]"
     )
@@ -240,9 +225,9 @@ def render_quiz_question_panel(
     for i, opt in enumerate(q["options"]):
         prefix = f" [{letters[i]}] "
         content.append(prefix, style="bold cyan")
-        content.append(f"{opt}\n", style="white")
+        content.append(f"{opt}\n", style="bold")
 
-    footer_bar = "[bold yellow]Choose answer:[/] [A/B/C/D or 1/2/3/4]  │  [h] Hint  │  [q] Quit Quiz"
+    footer_bar = r"[bold yellow]Choose answer:[/] \[A/B/C/D or 1/2/3/4]  │  \[h] Hint  │  \[q] Quit Quiz"
 
     return Panel(
         content,
@@ -293,11 +278,11 @@ def render_challenge_prompt_panel(card: Dict[str, Any], attempt_num: int) -> Pan
 
     content = Text()
     content.append("SCENARIO REQUIREMENT:\n", style="bold underline yellow")
-    content.append(f"{challenge['scenario']}\n\n", style="bold white")
+    content.append(f"👉  {challenge['scenario']}\n\n", style="bold")
     content.append("Task: ", style="bold green")
     content.append("Type the full terminal command below as you would run it in bash.\n", style="italic")
 
-    footer = "[h] Peek Hint  │  [s] Show Solution  │  [q] Cancel"
+    footer = r"\[h] Peek Hint  │  \[s] Show Solution  │  \[q] Cancel"
 
     return Panel(
         content,
@@ -327,7 +312,7 @@ def render_dashboard(stats: Dict[str, Any]) -> None:
         border_style="cyan",
     )
     kpi2 = Panel(
-        Align.center(f"[bold green]{stats['reviewed_count']}[/bold green] / [white]{stats['total_database_cards']}[/white]\n[dim]Commands Studied[/dim]"),
+        Align.center(f"[bold green]{stats['reviewed_count']}[/bold green] / [bold]{stats['total_database_cards']}[/bold]\n[dim]Commands Studied[/dim]"),
         box=ROUNDED,
         border_style="green",
     )
@@ -354,13 +339,13 @@ def render_dashboard(stats: Dict[str, Any]) -> None:
         box=ROUNDED,
         expand=True,
     )
-    box_table.add_column("Leitner Box", style="bold white", width=22)
-    box_table.add_column("Review Frequency", style="italic bright_black", width=20)
+    box_table.add_column("Leitner Box", style="bold", width=22)
+    box_table.add_column("Review Frequency", style="italic dim", width=20)
     box_table.add_column("Cards", justify="right", style="bold yellow", width=10)
     box_table.add_column("Distribution", style="green", ratio=1)
 
     box_labels = {
-        1: ("Box 1 (New / Hard)", "Every session (1 day)", "red"),
+        1: ("Box 1 (New / Hard)", "Every session (1 day)", "bright_red"),
         2: ("Box 2 (Learning)", "Every 3 days", "yellow"),
         3: ("Box 3 (Familiar)", "Every 7 days", "bright_blue"),
         4: ("Box 4 (Proficient)", "Every 14 days", "cyan"),
@@ -405,7 +390,7 @@ def render_commands_table(commands: List[Dict[str, Any]], query: str = "") -> No
     table.add_column("Command", style="bold green", min_width=8, max_width=14)
     table.add_column("Category", style="magenta", min_width=14, max_width=20)
     table.add_column("Diff", style="cyan", width=6)
-    table.add_column("Summary", style="white", min_width=25)
+    table.add_column("Summary", style="", min_width=25)
     table.add_column("Box", justify="center", style="yellow", width=5)
     table.add_column("⭐", justify="center", width=3)
 

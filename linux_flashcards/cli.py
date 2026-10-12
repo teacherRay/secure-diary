@@ -270,7 +270,7 @@ class FlashcardApp:
         grade_style = "bold green" if percentage >= 80 else ("bold yellow" if percentage >= 60 else "bold red")
         console.print(
             Panel(
-                f"[bold bright_white]Quiz Completed![/bold bright_white]\n\n"
+                f"[bold]Quiz Completed![/bold]\n\n"
                 f"Score: [{grade_style}]{score} / {total_q} ({percentage}%)[/{grade_style}]\n"
                 f"{'🏆 Outstanding Linux mastery!' if percentage >= 80 else '👍 Good effort! Keep reviewing flashcards.'}",
                 title="Results",
@@ -356,7 +356,7 @@ class FlashcardApp:
         print_banner(self.storage.data["meta"].get("streak_days", 1))
         console.print(
             Panel(
-                f"[bold bright_white]Challenge Session Complete![/bold bright_white]\n\n"
+                f"[bold]Challenge Session Complete![/bold]\n\n"
                 f"Solved: [bold green]{solved} / {total}[/bold green] challenges.",
                 border_style="green",
             )
@@ -418,7 +418,7 @@ class FlashcardApp:
         pct = round((score / questions_run * 100), 1) if questions_run > 0 else 0
         console.print(
             Panel(
-                f"[bold bright_white]Flag Drill Finished![/bold bright_white]\n\n"
+                f"[bold]Flag Drill Finished![/bold]\n\n"
                 f"Score: [bold green]{score} / {questions_run}[/bold green] ({pct}%)",
                 border_style="magenta",
             )
@@ -542,7 +542,7 @@ class FlashcardApp:
                 show_header=False,
             )
             menu_table.add_column("Key", style="bold yellow", width=8)
-            menu_table.add_column("Action", style="white")
+            menu_table.add_column("Action", style="")
 
             menu_table.add_row("[1]", "🗂️  Study Flashcards (Scenario → Command)")
             menu_table.add_row("[2]", "🔄  Study Flashcards (Command → Details & Flags)")
